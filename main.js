@@ -119,7 +119,8 @@ const table = [
     "Og", "Oganesson", "(294)", 18, 7
 ];
 
-let camera, scene, renderer, controls;
+let camera, scene, renderer, controls, composer;
+var hblur, vblur;
 let targets = {simple: [], table: [], sphere: [], helix: [], grid: []};
 
 init();
@@ -163,7 +164,6 @@ function initRenderer() {
     renderer = new THREE.CSS3DRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('container').appendChild(renderer.domElement);
-
 }
 
 function initObjects() {
@@ -190,6 +190,7 @@ function simpleObjectsLayout() {
         object.position.x = Math.random() * 4000 - 2000;
         object.position.y = Math.random() * 4000 - 2000;
         object.position.z = Math.random() * 4000 - 2000;
+
         scene.add(object);
         targets.simple.push(object);
         tableLayout(table, i);
@@ -218,7 +219,28 @@ function htmlElement(table, i) {
     details.innerHTML = table[i + 1] + '<br>' + table[i + 2];
     element.appendChild(details);
 
+    element.addEventListener('click', ()=>elementClickHandler(i), false);
+
     return element;
+}
+
+function elementClickHandler(i){
+
+    transform(targets.table,1000);
+
+    new TWEEN.Tween(targets.simple[i / 5].position)
+        .to({
+            x: 0,
+            y: 0,
+            z: 2500
+        }, Math.random() * 2000 + 2000)
+        .easing(TWEEN.Easing.Exponential.InOut)
+        .start();
+
+    new TWEEN.Tween(this)
+        .to({}, 2000 * 2)
+        .onUpdate(render)
+        .start();
 }
 
 function tableLayout(table, index) {
@@ -368,5 +390,5 @@ function animate() {
     requestAnimationFrame(animate);
     TWEEN.update();
     controls.update();
-
+    composer.render();
 }
